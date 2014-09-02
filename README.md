@@ -1,5 +1,29 @@
-Kubernetes Visualizer
+GCE Kubernetes Visualizer
 =====================
+
+This is a fork of the fine work done by the microsoft team for the azure platform.  Very little has changed so far.  The reporting (visualization) portion is working fine on gce.  The spinup of new pods is not working yet.  I don't like the direction they took to do that portion and so: (todo list)
+
+```
+1) add the ability to read pods / replicationControllers / services 
+   from a directory and allow the user to pick one to launch
+2) show running services / replicationControllers / minions
+3) resize replicationControllers
+4) stop pods / services 
+```
+
+Follow all the original directions below but do not use the start_server.sh script - that is for azure.
+Instead use the gce-start.sh script.  You need to define the following env variables:
+
+```
+#path to kubernetes repo
+KUBERNETES_PATH=
+
+# ip of kubernetes master
+KUBERNETES_IP=
+```
+=====================================================================================
+Original instructions
+=====================================================================================
 
 The demo application helps you visualize what is happening in your Kubernetes cluster by showing you where all of your workloads are being run. This both helps with understanding kubernetes, as well as visually demonstrating how its' scheduler works.
 
@@ -14,7 +38,7 @@ You can run the `install_packages.sh` script to install these if you already hav
 
 #### Configuring the demo
 
-Configuration options are passed to the demo via the command lines. The required options are the url of the Kubernetes server, and the number of minions in the cluster. You can pass this information in directly, or you can run the start_server.sh -- provided you edit it and enter in the path to your checkout of the [Kubernetes repository](https://github.com/GoogleCloudPlatform/kubernetes).
+Configuration options are passed to the demo via the command lines. The required options are the url of the Kubernetes server, and the number of minions in the cluster. You can pass this information in directly, or you can run the (gce_start_server.sh) start_server.sh -- provided you edit it and enter in the path to your checkout of the [Kubernetes repository](https://github.com/GoogleCloudPlatform/kubernetes).
 
 ```
 $ ./index.js --help
