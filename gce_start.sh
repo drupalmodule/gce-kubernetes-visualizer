@@ -20,17 +20,25 @@
 # It essentially just loads up your kubernetes config and pulls some configuration variables from there.
 # In the future this script may need adjusting as paths to the config scripts change.
 
-if [ -z $KUBERNETES_PROVIDER ]; then
-	export KUBERNETES_PROVIDER=azure;
-fi
+#cloud profider
+KUBERNETES_PROVIDER=gce
 
-export KUBERNETES_PATH=../kubernetes
+#path to kubernetes repo
+KUBERNETES_PATH= 
 
-source $KUBERNETES_PATH/release/${KUBERNETES_PROVIDER}/config.sh
+# ip of kubernetes master
+KUBERNETES_IP= 
+
+export KUBERNETES_PROVIDER KUBERNETES_PATH
+
+source $KUBERNETES_PATH/release/config.sh
 source $KUBERNETES_PATH/cluster/${KUBERNETES_PROVIDER}/config-default.sh
-
 ./index.js \
-	-s ${AZ_CS}.cloudapp.net \
-	-m ${NUM_MINIONS} \
-	-k ${KUBERNETES_PATH} \
+	--KubernetesServer ${KUBERNETES_IP} \
+	--NumMinions ${NUM_MINIONS} \
+	--KubePath ${KUBERNETES_PATH} \
+        --KubeAuthPath ~/.kubernetes \
+        --KubeApiVersion v1beta1 \
+        --ListenPort 3000 \
 	$@
+

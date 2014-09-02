@@ -65,6 +65,7 @@ limitations under the License.
   display: inline-block;
   min-height: 500px;
   vertical-align: top;
+  border: 1px solid rgb(86, 122, 243);
 }
 
 .nohost {
@@ -77,6 +78,7 @@ limitations under the License.
   width: 100%;
   text-align: center;
   display: block;
+  font-weight: bold;
 }
 
 .pod {
