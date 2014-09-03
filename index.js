@@ -202,6 +202,38 @@ function queryRunningPods() {
 
 	QueuedConnectionManager.GetJSONQueryResultConnection(requestOptions, resultHandler);
 }
+function queryRunningReplicationControllers() {
+	var requestOptions = QueuedConnectionManager.GetRequestOptionsForApi("replicationControllers", "GET");
+
+	requestOptions['connectionPriority'] = 'immediate';
+
+	var resultHandler = function(error, result) {
+		if (error !== null || typeof result !== 'object') {
+			cli.error("Error querying running pods: " + " " + error + " " + result);
+			return;
+		}
+
+		parseListQueryOutput(result);
+	}
+
+	QueuedConnectionManager.GetJSONQueryResultConnection(requestOptions, resultHandler);
+}
+function queryRunningServices() {
+	var requestOptions = QueuedConnectionManager.GetRequestOptionsForApi("services", "GET");
+
+	requestOptions['connectionPriority'] = 'immediate';
+
+	var resultHandler = function(error, result) {
+		if (error !== null || typeof result !== 'object') {
+			cli.error("Error querying running pods: " + " " + error + " " + result);
+			return;
+		}
+
+		parseListQueryOutput(result);
+	}
+
+	QueuedConnectionManager.GetJSONQueryResultConnection(requestOptions, resultHandler);
+}
 
 function deleteRunningPods() {
 	cli.debug('Deleting all pods');
@@ -237,6 +269,12 @@ function parseListQueryOutput(response) {
 	switch (response.kind) {
 		case "PodList":
 			parsePodList(response.items);
+			break;
+		case "ReplicationControllerList":
+			parseReplicationControllerList(response.items);
+			break;
+		case "ServiceList":
+			parseServiceList(response.items);
 			break;
 		default:
 			cli.error("Unknown list type received from query: " + response.kind);
@@ -305,6 +343,13 @@ function parsePodList(raw_pods) {
 	}
 }
 
+function parseReplicationControllerList(raw_controllers){
+}
+
+function parseServiceList(raw_services){
+}
+
+}
 var allowOperationStatusChecks = true;
 var activeOperationQueries = {};
 function CheckActiveOperationStatuses() {
