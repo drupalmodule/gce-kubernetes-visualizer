@@ -347,7 +347,6 @@ function parseReplicationControllerList(raw_controllers){
 }
 
 function parseServiceList(raw_services){
-}
 
 }
 var allowOperationStatusChecks = true;
