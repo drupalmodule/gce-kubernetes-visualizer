@@ -3,6 +3,8 @@
 	<head>
 		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 		<link rel="stylesheet" type="text/css" href="pods.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="services.css" media="screen" />
+		<link rel="stylesheet" type="text/css" href="rcontrollers.css" media="screen" />
 		<script type="text/javascript" src="/socket.io/socket.io.js"></script>
 
 		<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.1.1.min.js"></script>
@@ -10,6 +12,8 @@
 
 		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/ace/1.1.3/ace.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" src="/PodDisplayManager.js"></script>
+		<script type="text/javascript" src="/ReplicationControllerDisplayManager.js"></script>
+		<script type="text/javascript" src="/ServiceDisplayManager.js"></script>
 
 		<script type="text/javascript">
 			// UI elements initializations
@@ -17,15 +21,29 @@
 			$(function() {
 				
 				var DisplayManager = new PodDisplayManager($('#container'));
+				var rDisplayManager = new ReplicationControllerDisplayManager($('#rControllersContainer'));
+				var sDisplayManager = new ServiceDisplayManager($('#servicesContainer'));
+
 				var podId = Math.floor( Math.random() * 100000000000000 );
 				var disableEditorChangeEvent = true;
 				
 				socket.emit('get_pods');
+				socket.emit('get_rControllers');
+				socket.emit('get_services');
+            
 				socket.emit('get_base_config', getStartParameters());
 
 				socket.on('pods', function(pods) {
-					// console.log(pods);
+					//console.log(pods);
 					DisplayManager.Update(pods);
+				});
+				socket.on('rControllers', function(rControllers) {
+					// console.log(rController);
+					rDisplayManager.Update(rControllers);
+				});
+				socket.on('services', function(services) {
+					// console.log(services);
+					sDisplayManager.Update(services);
 				});
 
 				// Init the json editor
@@ -284,7 +302,8 @@
 			<div id="nohost"></div>
 
 		</div>
-        
+        <div id="rControllersContainer"></div>
+        <div id="servicesContainer"></div>        
         <div id="container"></div>
 	</body>
 </html>

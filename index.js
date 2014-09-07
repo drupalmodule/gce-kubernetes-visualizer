@@ -67,6 +67,8 @@ var listenPort = options.ListenPort;
 
 var sockets = [];
 var pods = [];
+var rControllers = [];
+var services= [];
 
 var createMode = 'pods';
 var MaxReplicas = options.MaxReplicas;
@@ -122,9 +124,14 @@ console.log();
 
 // Setup tasks that need to occur on an interval
 queryRunningPods();
+queryRunningServices();
+queryRunningReplicationControllers();
+
 cli.debug("Querying running pods every " + options.PodRefreshInterval + " milliseconds");
 setInterval(function(){
 	queryRunningPods();
+        queryRunningServices();
+        queryRunningReplicationControllers();
 }, options.PodRefreshInterval);
 
 cli.debug("Querying running operations every " + options.OperationRefreshInterval + " milliseconds");
@@ -151,6 +158,14 @@ io.on('connection', function(socket){
 
 	socket.on('get_pods', function() {
 		socket.emit('pods', pods);
+	});
+
+	socket.on('get_rControllers', function() {
+		socket.emit('rControllers', rControllers);
+	});
+
+	socket.on('get_services', function() {
+		socket.emit('services', services);
 	});
 
 	socket.on('delete_all_pods', function() {
@@ -209,7 +224,7 @@ function queryRunningReplicationControllers() {
 
 	var resultHandler = function(error, result) {
 		if (error !== null || typeof result !== 'object') {
-			cli.error("Error querying running pods: " + " " + error + " " + result);
+			cli.error("Error querying running replicationControllers: " + " " + error + " " + result);
 			return;
 		}
 
@@ -225,7 +240,7 @@ function queryRunningServices() {
 
 	var resultHandler = function(error, result) {
 		if (error !== null || typeof result !== 'object') {
-			cli.error("Error querying running pods: " + " " + error + " " + result);
+			cli.error("Error querying running services: " + " " + error + " " + result);
 			return;
 		}
 
@@ -344,10 +359,58 @@ function parsePodList(raw_pods) {
 }
 
 function parseReplicationControllerList(raw_controllers){
+        var new_rcontrollers = [];
+        for (var c in raw_controllers) {
+                var controller = raw_controllers[c];
+                var id = controller.id;
+                var replicas = controller.desiredState.replicas;
+                var labels = controller.desiredState.labels;
+                var selectors = controller.desiredState.replicaSelector;
+                new_rcontrollers.push(
+                        new RController(
+                                id,
+                                replicas,
+                                labels,
+                                selectors,
+                                controller));
+                //cli.info("id: " + id + " replicas: " + replicas + " labels: " + labels + " selectors: " + selectors);
+        }
+
+        cli.info("" + new_rcontrollers.length + " ReplicationControllers found");
+
+        rControllers = new_rcontrollers;
+        PushRControllersToSockets(new_rcontrollers, sockets);
 }
 
 function parseServiceList(raw_services){
+        var new_services = [];
 
+        for (var i in raw_services) {
+                var s = raw_services[i];
+                var id = s.id;
+                var port = s.port;
+                var containerPort = s.containerPort;
+                var externalLoadBalancer = s.createExternalLoadBalancer;
+                var labels = s.labels;
+                var selectors = s.selector;
+                new_services.push(
+                      new Service(
+                                id,
+                                port,
+                                containerPort,
+                                externalLoadBalancer,
+                                labels,
+                                selectors,
+                                s));
+                
+                //cli.info("id: " + id + " port: " + port + " containerPort: " + containerPort + " createExternalLoadBalancer: " + externalLoadBalancer + " labels: " + labels + " selectors: " + selectors);
+        }
+
+        cli.info("" + new_services.length + " Services found");
+        services = new_services;
+        //cli.info ( "services: " + JSON.stringify(new_services[0], null, 4));
+        PushServicesToSockets(services,sockets); 
+        //PushServicesToSockets(new_services,sockets); 
 }
 var allowOperationStatusChecks = true;
 var activeOperationQueries = {};
@@ -441,6 +504,19 @@ function PushPodsToSockets(pods, sockets) {
 		sockets[s].emit('pods', pods);
 	}
 }
+
+function PushRControllersToSockets(rControllers, sockets) {
+	for (var s in sockets) {
+		sockets[s].emit('rControllers', rControllers);
+	}
+}
+
+function PushServicesToSockets(services, sockets) {
+	for (var s in sockets) {
+		sockets[s].emit('services', services);
+	}
+}
+
 
 function HandlePodCreateRequest(podCreateRequest) {
 	cli.debug("Create mode is " +  createMode);
@@ -642,6 +718,30 @@ function Pod(Name, Images, Host, Labels, BaseObject) {
 		'Host': typeof Host === 'string' ? Host : '',
 		'Labels': typeof Labels === 'object' ? Labels : {},
 		'CreateStatus': BaseObject.desiredState.manifest.id in activeOperations ? activeOperations[BaseObject.desiredState.manifest.id] : false,
+		'BaseObject': typeof BaseObject === 'object' ? BaseObject : {}
+	};
+}
+
+function RController(Id, Replicas, Labels, Selectors, BaseObject) {
+	return {
+		'Id': typeof Id === 'string' ? Id : '',
+		'Replicas': typeof Replicas === 'number' ? Replicas : '',
+		'Labels': typeof Labels === 'object' ? Labels : {},
+		'Selectors': typeof Selectors === 'object' ? Selectors : {},
+		'BaseObject': typeof BaseObject === 'object' ? BaseObject : {}
+	};
+}
+
+function Service(Id, Port, ContainerPort, ExternalLoadBalancer, Labels, Selectors, BaseObject) {
+                //cli.info("Id: " + Id + " Port: " + Port + " ContainerPort: " + ContainerPort + " ExternalLoadBalancer: " + ExternalLoadBalancer + " Labels: " + Labels + " Selectors: " + Selectors);
+
+	return {
+		'Id': typeof Id === 'string' ? Id : '',
+		'Port': typeof Port === 'number' ? Port : '',
+		'ContainerPort': typeof ContainerPort === 'number' ? ContainerPort : '',
+		'ExternalLoadBalancer': typeof ExternalLoadBalancer === 'boolean' ? ExternalLoadBalancer : '',
+		'Labels': typeof Labels === 'object' ? Labels : {},
+		'Selectors': typeof Selectors === 'object' ? Selectors : {},
 		'BaseObject': typeof BaseObject === 'object' ? BaseObject : {}
 	};
 }
