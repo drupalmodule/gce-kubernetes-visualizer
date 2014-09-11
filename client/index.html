@@ -46,6 +46,11 @@
 					sDisplayManager.Update(services);
 				});
 
+// End configuration
+// Begin TopFrame
+
+
+
 				// Init the json editor
 				var podEditor = ace.edit('create-config-editor');
 				podEditor.setTheme('ace/theme/monokai');
@@ -90,9 +95,8 @@
 						console.log("Creating container", startParameters);
 						socket.emit("create_replicated_pod", startParameters);
 
-						NewPodId();
 					});
-
+/*
 				$("#start-from-source")
 					.button()
 					.click(function(event){
@@ -109,17 +113,12 @@
 						console.log("Creating container from source", startParameters);
 						socket.emit("create_replicated_pod", startParameters);
 
-						NewPodId();
 					});
 
-				function NewPodId() {
-					podId = Math.floor( Math.random() * 100000000000000 );
-					updateCodeEditor();
-				}
 
-				$("#show-pod-source").button().click(function(){ $('.pod-source-container, #start-from-source').toggle(); });
-				$("#show-rc-source").button().click(function(){ $('.rc-source-container').toggle(); });
-
+//				$("#show-pod-source").button().click(function(){ $('.pod-source-container, #start-from-source').toggle(); });
+//				$("#show-rc-source").button().click(function(){ $('.rc-source-container').toggle(); });
+*/
 				function getStartParameters() {
 					return {
 							Name: $("#ui-widget-contentainerName").val(),
@@ -129,7 +128,9 @@
 							RawRequest: null,
 						};
 				}
+// end create new stuff
 
+/* begin editor stuff 
 				socket.on('set_base_config', function (startObj) {
 					podEditor.setValue(JSON.stringify(startObj['pods'], undefined, 2));
 					replicaEditor.setValue(JSON.stringify(startObj['replicas'], undefined, 2));
@@ -253,6 +254,7 @@
 						podEditor.resize();
 						replicaEditor.resize();
 					});
+ End Editor Stuff */ 
 			});
 		</script>
 	</head>
@@ -279,13 +281,13 @@
 							</td>
 						</tr>
 						<tr>
-							<th>
+					<!--		<th>
 								<button id="show-pod-source">Pod Source</button>
 								<button id="show-rc-source">RC Source</button>
-							</th>
+							</th> -->
 							<td>
 								<button id="start">Create!</button>
-								<button id="start-from-source" style="display:none">Create from Source</button>
+					<!--			<button id="start-from-source" style="display:none">Create from Source</button>  --> 
 							</td>
 						</tr>
 					</tbody>

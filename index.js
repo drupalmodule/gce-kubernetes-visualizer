@@ -27,8 +27,8 @@ var spawn = require('child_process').spawn;
 var path = require("flavored-path");
 var cli = require("cli").enable('status');
 
-var queuedConnection = require('./QueuedConnection.js');
-var portmanager = require("./PortManager.js");
+var queuedConnection = require('./lib/QueuedConnection.js');
+var portmanager = require("./lib/PortManager.js");
 
 var appOptions = {
 	'KubernetesServer': ['s', 'URL of the Kubernetes Server', 'url'],
@@ -125,10 +125,10 @@ console.log();
 /// Include functions from subfiles - just until I rewrite them and move them into modules - just step 1 in refactoring
 var fs = require('fs');
 
-eval(fs.readFileSync('get.js')+'');
-eval(fs.readFileSync('delete.js')+'');
-eval(fs.readFileSync('create.js')+'');
-eval(fs.readFileSync('define_objects.js')+'');
+eval(fs.readFileSync('./lib/get.js')+'');
+eval(fs.readFileSync('./lib/delete.js')+'');
+eval(fs.readFileSync('./lib/create_new.js')+'');
+eval(fs.readFileSync('./lib/define_objects.js')+'');
 
 // Setup tasks that need to occur on an interval
 queryRunningPods();
