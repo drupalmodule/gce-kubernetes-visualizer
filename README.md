@@ -1,5 +1,6 @@
-GCE Kubernetes Visualizer
+This projcet is now replaced by Visual kubecfg
 =====================
+see http://github.com/drupalmodule/visual-kubecfg
 
 This is a fork of the fine work done by the microsoft team for the azure platform.  Very little has changed so far.  The reporting (visualization) portion is working fine on gce.  The spinup of new pods is not working yet.  I don't like the direction they took to do that portion and so: (todo list)
 
